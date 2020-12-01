@@ -6,7 +6,10 @@
     @click="$emit('changed', index)"
   >
     {{ item.name }}
-    <el-dropdown class="ml-auto">
+    <span v-if="!showOptions" class="border ml-auto btn-sm btn btn-light">
+      {{ item.num }}
+    </span>
+    <el-dropdown v-else class="ml-auto">
       <span class="border btn-sm btn btn-light">
         {{ item.num }}<i class="el-icon-arrow-down el-icon--right"></i>
       </span>
@@ -36,6 +39,10 @@ export default {
     index: {
       type: Number,
       default: 0,
+    },
+    showOptions: {
+      type: Boolean,
+      default: true,
     },
   },
 };

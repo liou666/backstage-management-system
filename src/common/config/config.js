@@ -1,5 +1,5 @@
 export default {
-  logo: "UNI-ADMIN",
+  logo: "Liou-ADMIN",
   navBar: {
     active: "0",
     list: [
@@ -17,6 +17,7 @@ export default {
             name: "商品列表",
             pathname: "shops-goods-list",
           },
+
           {
             icon: "el-icon-picture",
             name: "相册管理",
@@ -30,7 +31,7 @@ export default {
         subMenu: [
           {
             icon: "el-icon-s-home",
-            name: "ss首页",
+            name: "商品列表",
             pathname: "shops-goods-list",
           },
         ],

@@ -29,7 +29,8 @@
                   size="medium"
                   style="width:100%"
                   type="primary"
-                  >立即登录</el-button
+                  :loading="isLoading"
+                  >{{ isLoading ? "登录中" : "立即登录" }}</el-button
                 >
               </el-form-item>
             </el-form>
@@ -44,6 +45,7 @@
 export default {
   data() {
     return {
+      isLoading: false,
       form: {
         username: "",
         password: "",
@@ -54,7 +56,7 @@ export default {
         ],
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
-          { min: 6, max: 10, message: "密码长度6-10位", trigger: "blur" },
+          { min: 3, max: 10, message: "密码长度3-10位", trigger: "blur" },
         ],
       },
     };
@@ -63,7 +65,13 @@ export default {
     submit() {
       this.$refs.form.validate((e) => {
         if (!e) return;
-        this.$router.push("/index");
+        this.isLoading = true;
+        this.axios.post("/admin/login", this.form).then((res) => {
+          this.$store.commit("login", res.data.data);
+          this.$message.success("登录成功");
+          this.isLoading = false;
+          this.$router.push("/index");
+        });
       });
     },
   },

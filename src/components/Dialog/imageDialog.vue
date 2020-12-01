@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <el-container style="position:absolute;top:55.4px;bottom:0;left:0;right:0">
-      <el-header class="border-bottom">
+  <el-dialog top="5vh" width="80%" title="标题" :visible.sync="imageModel">
+    <el-container style="position: relative;margin:-30px -20px">
+      <el-header class=" border-bottom">
         <!-- 头部区域 -->
         <div class="d-flex align-items-center h-100">
           <el-select
@@ -25,56 +25,30 @@
           <el-button size="mini" type="primary" class="bg-success mr-auto"
             >搜索</el-button
           >
-          <el-button
-            size="mini"
-            v-if="imageChecked[0]"
-            type="primary"
-            class="bg-warning"
-            @click="cancleChecked"
-            >取消选中</el-button
-          >
-          <el-button
-            size="mini"
-            v-if="imageChecked[0]"
-            type="primary"
-            class="bg-danger"
-            @click="deleteImage({ all: true })"
-            >批量删除</el-button
-          >
-          <el-button size="mini" @click="openAlbumModel(false)" type="success"
-            >创建相册</el-button
-          >
-          <el-button
-            size="mini"
-            type="warning"
-            @click="isUplodeMoudleShow = true"
-            >上传图片</el-button
-          >
         </div>
       </el-header>
       <el-container>
         <el-aside
-          style="position:absolute;top:60px;bottom:60px;left:0"
+          style="height: 400px;;position: relative; right:0;top:20px;left:0"
           width="200px"
           class="border-right"
         >
           <!-- 侧边区域 -->
           <ul class="list-group">
             <album-item
+              :showOptions="false"
               :actived="index == currentIndex"
               v-for="(item, index) in albums"
               :key="index"
               :item="item"
               :index="index"
               @changed="itemClick"
-              @edit="openAlbumModel"
-              @delete="albumDelete"
             />
           </ul>
         </el-aside>
         <el-container>
           <el-main
-            style="position:absolute;top:60px;bottom:60px;left:200px;right:0"
+            style="height:400px; position: relative; right:0;top:0px;left:0"
           >
             <!-- 内容 -->
             <el-row :gutter="10">
@@ -129,11 +103,6 @@
                     >
                       <el-button-group>
                         <el-button
-                          size="mini"
-                          @click="priviewImg(item)"
-                          icon="el-icon-view"
-                        ></el-button>
-                        <el-button
                           @click="editImage(item, index)"
                           size="mini"
                           icon="el-icon-edit"
@@ -152,7 +121,7 @@
           </el-main>
         </el-container>
       </el-container>
-      <el-footer class="px-0">
+      <el-footer class="px-0 mt-3">
         <!-- 底部区域 -->
         <div class="d-flex  align-items-center h-100 ">
           <div
@@ -184,98 +153,67 @@
         </div>
       </el-footer>
     </el-container>
-    <!-- 创建|编辑模态框 -->
-    <div>
-      <el-dialog
-        :title="dailogTitle"
-        :visible.sync="isAlbumModelShow"
-        width="30%"
-      >
-        <el-form ref="form" :model="albumForm" label-width="80px">
-          <el-form-item label="相册名称">
-            <el-input
-              placeholder="请输入相册名称"
-              v-model="albumForm.name"
-            ></el-input>
-          </el-form-item>
-          <el-form-item label="相册排序">
-            <el-input-number
-              v-model="albumForm.order"
-              :min="0"
-            ></el-input-number>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="isAlbumModelShow = false">取 消</el-button>
-          <el-button type="primary" @click="confirmEdit">确 定</el-button>
-        </span>
-      </el-dialog>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="imageModel = false">取 消</el-button>
+      <el-button type="primary" @click="confirm">确 定</el-button>
     </div>
-    <!-- 上传图片模态框 -->
-    <div>
-      <el-dialog title="上传图片" :visible.sync="isUplodeMoudleShow" width="50%"
-        ><div class="text-center">
-          <el-upload
-            class="upload-demo"
-            drag
-            action="https://jsonplaceholder.typicode.com/posts/"
-            multiple
-          >
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
-            <div class="el-upload__tip" slot="tip">
-              只能上传jpg/png文件，且不超过500kb
-            </div>
-          </el-upload>
-        </div>
-      </el-dialog>
-    </div>
-    <!-- 图片预览模态框 -->
-    <div>
-      <el-dialog :visible.sync="isPriviewMoudelShow" width="50%" top="50px">
-        <div class="position-relative" style=" margin:-60px -20px -30px -20px">
-          <img class="w-100" :src="priviewUrl" alt="" />
-        </div>
-      </el-dialog>
-    </div>
-  </div>
+  </el-dialog>
 </template>
 
 <script>
 import albumItem from "@/components/album/albumItem.vue";
-
 export default {
-  components: { albumItem },
+  props: {
+    max: {
+      type: Number,
+      default: 9,
+    },
+  },
   data() {
     return {
+      imageModel: false,
+      callback: "",
+      //图片管理的数据
       form: {
         order: "",
         keywords: "",
       },
       albums: [],
       currentIndex: 0,
-      isAlbumModelShow: false,
+
       albumForm: {
         num: 0,
         order: 0,
         name: "",
       },
-      albumEditIndex: -1,
-      dailogTitle: "",
-      isUplodeMoudleShow: false,
-      isPriviewMoudelShow: false,
       priviewUrl: "",
       imageList: [],
       imageChecked: [],
       currentPage: 1,
     };
   },
+  components: { albumItem },
   created() {
     this.init();
   },
   methods: {
+    show(callback) {
+      this.cancleChecked();
+
+      this.callback = callback;
+      this.imageModel = true;
+    },
+    hide() {
+      this.imageModel = false;
+    },
+    confirm() {
+      //将图片的url传递出去
+      this.callback(this.imageChecked);
+      this.imageChecked = [];
+      //-------------
+      this.hide();
+    },
+    //图片管理页面的方法
     init() {
       for (let i = 1; i <= 20; i++) {
         this.albums.push({
@@ -344,10 +282,7 @@ export default {
       this.albums[this.albumEditIndex].name = this.albumForm.name;
       this.albums[this.albumEditIndex].order = this.albumForm.order;
     },
-    priviewImg(item) {
-      this.priviewUrl = item.url;
-      this.isPriviewMoudelShow = true;
-    },
+
     editImage(item, index) {
       this.$prompt("请输入图片名称", "提示", {
         confirmButtonText: "确定",
@@ -389,6 +324,13 @@ export default {
     },
     choose(item) {
       if (!item.isChecked) {
+        //限制选中数量
+        if (this.imageChecked.length >= this.max) {
+          return this.$message({
+            message: `最多选择${this.max}张图片`,
+            type: "warning",
+          });
+        }
         this.imageChecked.push(item);
         item.order = this.imageChecked.length;
         item.isChecked = true;
@@ -415,9 +357,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.album-active {
-  background: #f1fffe;
-  color: #3ae374;
-}
-</style>
+<style></style>

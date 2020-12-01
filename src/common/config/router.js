@@ -2,11 +2,12 @@ const routes = [
   {
     path: "/",
     name: "layout",
-    redirect: { name: "index" },
+    redirect: { name: "login" },
     component: "layout",
     children: [
       { meta: { title: "后台首页" }, component: "index/index" },
       { meta: { title: "商品列表" }, component: "shops/goods/list" },
+      { meta: { title: "商品发布" }, component: "shops/goods/create" },
       { meta: { title: "相册管理" }, component: "image/index" },
     ],
   },

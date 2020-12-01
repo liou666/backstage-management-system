@@ -25,8 +25,12 @@
               <el-avatar
                 class="mr-2"
                 size="small"
-                src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
-              />summer</template
+                :src="
+                  user.avatar
+                    ? user.avatar
+                    : 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+                "
+              />{{ user.username }}</template
             >
             <el-menu-item index="100-1">修改</el-menu-item>
             <el-menu-item index="100-2">退出</el-menu-item>
@@ -97,6 +101,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -127,6 +132,9 @@ export default {
     },
   },
   computed: {
+    ...mapState({
+      user: (state) => state.user.user,
+    }),
     slideMenus() {
       return this.navBar.list[this.navBar.active].subMenu || [];
     },
@@ -145,7 +153,7 @@ export default {
         return console.log("修改");
       }
       if (key == "100-2") {
-        return console.log("退出");
+        return this.logout();
       }
       this.navBar.active = key;
       this.slideMenusActive = "0";
@@ -181,6 +189,22 @@ export default {
         this.navBar.active = r.top;
         this.slideMenusActive = r.left;
       }
+    },
+    logout() {
+      this.axios
+        .post(
+          "/admin/logout",
+          {},
+          {
+            token: true,
+          }
+        )
+        .then((res) => {
+          this.$message("退出成功");
+          this.$store.commit("logout");
+          this.$router.push({ name: "login" });
+        })
+        .catch((err) => this.$router.push({ name: "login" }));
     },
   },
 };
